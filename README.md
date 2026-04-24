@@ -31,6 +31,7 @@ uvicorn app.main:app --reload --port 8000
 | `GROQ_API_KEY` | Required when using Groq (default); omit for `mock` |
 | `GROQ_MODEL`   | e.g. `llama-3.3-70b-versatile`                      |
 
+
 For details about design and decisions, see the [Design](#design) and [Design Q&A](#design-qa) sections below.
 
 ## LLM Prompting strategy
@@ -73,7 +74,7 @@ Some shortcuts were taken due to time constraints. The left column describes wha
 
 | Current shortcut                                                                                | In production                                                                                                                                  |
 | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| An in-memory asyncio queue is used to store tasks to be processed                               | We will use a durable message broker such as **SQS** or **RabbitMQ** with **DLQs** and proper visibility timeouts.                             |
+| An in-memory asyncio queue is used to store tasks to be processed                               | We will use a durable message broker such as SQS or RabbitMQ with DLQs and proper visibility timeouts.                                         |
 | A fixed number of worker threads are used as consumers                                          | We will run a separate consumer pool that auto-scales based on the pending backlog.                                                            |
 | No authentication or rate limiting is enforced on the webhook endpoint                          | We will add API keys and per-vendor rate limiting at the gateway.                                                                              |
 | No proper idempotency is implemented; the same extraction task can be performed multiple times  | We will add distributed deduplication (for example, Redis `SET ... NX` with TTL) to ensure each extraction task is processed only once.        |
@@ -94,7 +95,6 @@ Some shortcuts were taken due to time constraints. The left column describes wha
 3. `**app/schemas/registry.py`** — Register the new type: point it at your Pydantic model, add a short line for “when is this XYZ?”, add extraction instructions, optional keyword hints for fuzzy labels, and optional mock output if you use the mock LLM.
 4. `**app/models.py`** — Add a table (and a link from raw webhooks if you want) for the normalized row, same idea as shipments and invoices.
 5. `**app/services/normalized_handlers.py`** — Add an upsert that writes validated data into that table and map your new `EventType` to that function in the handler dict at the bottom of the file.
-
 
 ## Design
 
