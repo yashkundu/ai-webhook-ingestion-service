@@ -1,0 +1,10 @@
+[project]
+name = "ai-webhook-ingestion-service"
+version = "0.1.0"
+description = "Async webhook ingestion with LLM classification and normalization"
+requires-python = ">=3.9"
+readme = "README.md"
+
+[tool.pyright]
+# Optional: relax for mixed typing style
+typeCheckingMode = "basic"
